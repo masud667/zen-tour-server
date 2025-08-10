@@ -55,6 +55,29 @@ async function run() {
     const db = client.db("zentour");
     const packagesCollection = db.collection("tourPackages");
     const bookingsCollection = db.collection("tourBookings");
+    const subscriptionsCollection = db.collection("subscriptions");
+
+
+
+
+// POST route to store subscription
+app.post("/subscribe", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const existing = await subscriptionsCollection.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Already subscribed" });
+    }
+
+    const result = await subscriptionsCollection.insertOne({ email, date: new Date() });
+    res.status(201).json({ message: "Subscribed successfully", data: result });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
     app.post("/bookings", async (req, res) => {
       try {
